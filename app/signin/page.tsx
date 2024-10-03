@@ -12,7 +12,7 @@ export default function SignInPage() {
     const handleEmailSignIn = async () => {
         const res = await signIn("credentials", {
             redirect: false,
-            username: email, 
+            email: email, 
             password: password,
         });
 
