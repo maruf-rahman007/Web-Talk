@@ -16,49 +16,64 @@ export const NEXT_AUTH = {
                 name: { label: 'name', type: 'text', placeholder: 'Name' },
             },
             async authorize(credentials: any) {
-                console.log(credentials)
+                console.log("Received credentials:", credentials);
 
-                let user = await prisma.user.findUnique({
-                    where:{
-                        email:  credentials.email
-                    }
-                })
+                if (credentials.isLogin === 'true') {
 
-                if(user) {
-                    const isPasswordValid = await bcrypt.compare(credentials.password, user.password || "");
-                    if(isPasswordValid) {
-                        return {
-                            id: user.id,
-                            name: credentials.name,
+                    const user = await prisma.user.findUnique({
+                        where: {
                             email: credentials.email
-                        };
+                        }
+                    });
+            
+                    if (user) {
+                        const isPasswordValid = await bcrypt.compare(credentials.password, user.password || "");
+                        if (isPasswordValid) {
+                            return {
+                                id: user.id,
+                                name: user.name, 
+                                email: user.email,
+                            };
+                        } else {
+                            throw new Error("Password does not match, please try again.");
+                        }
+                    } else {
+                        throw new Error("No user found with this email address.");
                     }
-                    else {
-                        throw new Error("Password does not match, please try again");
+                } else {
+                    const existingUser = await prisma.user.findUnique({
+                        where: {
+                            email: credentials.email
+                        }
+                    });
+            
+                    if (existingUser) {
+                        throw new Error("User with the same email address already exists.");
                     }
-                }
-
-                else {
-                    const hashedpassword = await bcrypt.hash(credentials.password,10)
+            
+                    
+                    const hashedPassword = await bcrypt.hash(credentials.password, 10);
                     try {
-                        user = await prisma.user.create({
+                        const newUser = await prisma.user.create({
                             data: {
-                                email:credentials.email,
+                                email: credentials.email,
                                 name: credentials.name,
-                                password: hashedpassword
+                                password: hashedPassword,
                             }
-                        })
-
+                        });
+            
                         return {
-                            id: user.id,
-                            name: credentials.name,
-                            email: credentials.email
+                            id: newUser.id,
+                            name: newUser.name,
+                            email: newUser.email,
                         };
-
+            
                     } catch (error) {
                         throw new Error("Failed to create user");
                     }
                 }
+            
+                return null;
             },
         }),
         GoogleProvider({
