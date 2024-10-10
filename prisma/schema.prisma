@@ -15,12 +15,13 @@ datasource db {
 
 model User {
   id             String   @id @default(cuid())
-  email          String   @unique
+  email          String?   @unique
   password       String?  
   name           String?
   image          String?  
   googleId       String?  @unique 
   githubId       String?  @unique 
+  method         String //EMAIL PASSWORD?GMAIL?GITHUB?
   blogs          Blog[]   @relation("UserBlogs")
   likes          Like[]   @relation("UserLikes")
 

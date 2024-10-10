@@ -8,8 +8,8 @@ export default async function UserComponent() {
 
     // Redirect to homepage if not authenticated
     if (!session || !session.user) {
-        redirect('/'); 
-        return null; // Return null to ensure the component does not render anything after redirect
+        redirect('/signin'); 
+        return null;
     }
 
     return (
@@ -19,7 +19,7 @@ export default async function UserComponent() {
             {session ? (
                 <>
                     <img
-                        src={session.user.image || '/default-avatar.png'}
+                        src={session.user.image}
                         alt={session.user.name || "User Image"}
                         className="rounded-full w-12 h-12" // Added styling for better appearance
                     />
